@@ -1,0 +1,227 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Smart Google Analytics plugin for Craft CMS 3.x
+ *
+ * Smart Google Analytics Settings.twig
+ *
+ * @author    zealousweb
+ * @copyright Copyright (c) 2021 zealousweb
+ * @link      https://www.zealousweb.com
+ * @package   SmartGoogleAnalytics
+ * @since     1.0.0
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+{% macro configWarning(setting) -%}
+    {% set setting = '<code>'~setting~'</code>' %}
+    {{ "This is being overridden by the {setting} config setting in your {file} config file."|t('smart-google-analytics', {
+        setting: setting,
+        file: 'smart-google-analytics.php'
+    })|raw }}
+{%- endmacro %}
+
+{% from _self import configWarning %}
+{% do view.registerAssetBundle("zealouswebcraftcms\\smartgoogleanalytics\\assetbundles\\smartgoogleanalytics\\SmartGoogleAnalyticsAsset") %}
+
+    {% set session = craft.app.session.get('google_user_access_token') %} 
+    {% set user_name = craft.app.session.get('user_name') %} 
+   
+    {% if session == '' %}
+        {# First Tab For Setting Page #}
+        <div id="tab-settings">
+            <!-- Modal -->
+            <h2>Create your Client ID, Client Secret Key, and Maps Api Key using the following steps:</h2><a href="javascript:void(0);" class="btn pop-up-btn" id="myBtn" onclick="show()">Click here for the steps</a>
+            <div class="modaltest" id="myModal" style="display:none">
+                <div class="modal-content">
+                    <span class="close" onclick="hide()">&times;</span>
+                    <div class="modal-body">
+                        <h2 class="first" text align="center">How to get Google Client ID, Client Secret Key, and Maps Api Key?</h2>
+                        <p><b>1</b> Go to the <a href="https://console.developers.google.com">Google Developers Console</a> and create a new project or use an existing one. To create a New Project, click on the dropdown on the right side of Google Cloud Platform; it gives you an option to create a New Project; click on ‘New Project’, then mention your project Name, organization and location and then 'Create'.</p>
+                        <p>To select your project, click on the dropdown on the right side of Google Cloud Platform, and choose your desired project.</p>
+
+                        <p><b>2</b> In <strong>API & Services → Library</strong>, search for "analytics" and then click on Google Analytics API, Google Analytics Reporting API and Google Analytics Data API, and Enable them one by one to activate it. Or you can follow this same process by clicking on the "ENABLE APIS AND SERVICES" link.</p>
+
+                        <p><b>3</b> Navigate to the tab <strong> "Credentials"</strong>
+                        → Click on the configure consent screen to set up your application name
+                        → Select user type and fill out the details on the form, Application name and User Support Email and click the save button to finish
+                        → Then scroll down in the 'Developer Contact Information' section, add your email, then save and continue.</p>
+
+                        <p>If you want to add Scope, you can add it and then save it. (It is entirely optional).</p>
+
+                        <p><b>4</b> Now go to the "Credentials" tab again
+                        → Click the Create Credentials link and choose OAuth client ID from the dropdown
+                        → You will be asked to choose an application type. Choose 'Web Application'
+                        → Then you will get a form, fill out any name you like in the 'Name field', and add an
+                        <strong>Authorized JavaScript origins</strong> (your host URL). Add an <strong>Authorized Redirect URI</strong> (Project_Uri) : 
+                            <ul class="bullets">
+                                <li><strong>Redirect URI : </strong> <code>{{ redirect_uri }}</code></li>
+                            </ul>
+                        </p>
+
+                        <p><b>5</b> Click on the create button
+                        → Once the OAuth client is created, Google will provide your Client ID and Secret, and is listed on the Credentials page under OAuth 2.0 Client IDs. So place your Client IDs and Client Secrets key in the project and move on to the next step mentioned below.</p>
+
+                        <p><b>6</b> For Maps Api Key, go to the <strong>Library</strong> tab, search for "Maps JavaScript API", then click on it and Enable it.
+                        </p>
+
+                        <p><b>7</b> Now go to the <strong>“Credentials”</strong> tab again, click the 'Create Credentials' link and choose the API key from the dropdown
+                         → A Dialog box will appear that displays your generated API key
+                         → Click Close
+                         → The new API key is listed on the Credentials page under API keys.
+                        </p>
+                        
+                        <p> After completing all the steps  place your Client IDs, Client Secret Key, and Maps Api key in the project and save.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            {{ forms.textField({
+                label: "Client ID",
+                instructions: 'Enter the Client ID which we created through console developers',
+                id:   'oauthClientId',
+                name: 'oauthClientId',
+                value: ((settings|length) ? settings.oauthClientId : ''),
+                required: true,
+                errors: ((settings|length) ? settings.getErrors('oauthClientId') : ''),
+                class: 'oauthClientId'
+            }) }}
+
+            {{ forms.textField({
+                label: "Client Secret Key",
+                instructions: 'Enter the Client Secret Key which we created through console developers',
+                id:   'oauthClientSecret',
+                name: 'oauthClientSecret',
+                value: ((settings|length) ? settings.oauthClientSecret : ''),
+                required: true,
+                errors: ((settings|length) ? settings.getErrors('oauthClientSecret') : ''),
+                class: 'oauthClientSecret'
+            }) }}
+
+            {{ forms.textField({
+                label: "Maps Api Key",
+                instructions: 'Enter the Maps Api Key which we created through console developers',
+                id:   'mapsApiKey',
+                name: 'mapsApiKey',
+                value: ((settings|length) ? settings.mapsApiKey : ''),
+                required: true,
+                errors: ((settings|length) ? settings.getErrors('mapsApiKey') : ''),
+                class: 'mapsApiKey'
+            }) }}
+
+            <input type="button" class="btn submit save-btn disabled" id="up1bt" value="{{'Save'|t('smart-google-analytics') }}">
+            <a class="submit-url disabled" id="submit-url" href="{{ actionUrl('smart-google-analytics/default/connect') }}" hidden>{{'Connect'|t('smart-google-analytics') }}</a>
+        </div>
+        
+        <div id="tab-View" class="hidden">
+            <p style = "font-weight: bold";> {{ 'To get started, go to the settings and configure your Google application’s Client IDs, Client Secret Key, and Maps Api key.'|t('smart-google-analytics') }}</p>
+        </div>
+
+    {% else %}
+        <div id="tab-settings">
+            <h2 class="first">{{ 'Google Analytics Account'|t('smart-google-analytics') }}</h2>
+            <p>{{ 'You are authenticated to Google Analytics with the following account'|t('smart-google-analytics') }} :</p>
+            <div class="oauth-account">
+                <div class="account-box">
+                    <div class="image">
+                        <img src='{{googleIcon}}' height="30" alt="Google OAuth provider">
+                    </div>
+                    <div class="details">
+                        <ul>
+                            <li class="light">{{user_name}}</li>
+                        </ul>
+                    </div>
+                    <div class="buttons">
+                        <a class="icon delete" href="{{ actionUrl('smart-google-analytics/default/disconnect') }}"></a>
+                    </div>
+                    <iframe id="logoutframe" src="https://accounts.google.com/logout" style="display: none"></iframe>
+                </div>
+            </div>
+        </div>
+    {# Second Tab For View Page  #}
+    <div id="tab-View" class="hidden">
+        {% include 'smart-google-analytics/views' with {data: data} %}
+    </div>
+{% endif %}
+
+{% block javascript %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        var CLIENTID = ("{{settings|length}}") ? '{{settings.oauthClientId}}' : '';
+        var SECRETKEY = ("{{settings|length}}") ? "{{settings.oauthClientSecret}}" : '';
+        var MAPSAPIKEY = ("{{settings|length}}") ? "{{settings.mapsApiKey}}" : '';
+
+        $(document).ready(function() {
+            checkConditon();
+
+            var client_id = $("input[name='oauthClientId']").val();
+            var secret_id = $("input[name='oauthClientSecret']").val();
+            var map_apikey = $("input[name='mapsApiKey']").val();
+        
+            if(CLIENTID != '' && SECRETKEY != '' && MAPSAPIKEY != '') {
+                displayConnectButton();
+            }
+            
+            $("input[name='oauthClientId']").on('keyup', function() {
+                checkConditon();
+            });
+            $("input[name='oauthClientSecret']").on('keyup', function() {
+                checkConditon();
+            });
+            $("input[name='mapsApiKey']").on('keyup', function() {
+                checkConditon();
+            });
+            $('.save-btn').on('click', function() {
+                var client_id = $("input[name='oauthClientId']").val();
+                var secret_id = $("input[name='oauthClientSecret']").val();
+                var map_apikey = $("input[name='mapsApiKey']").val();
+                if(client_id != '' && secret_id != '' && map_apikey != '') {
+                    $('#action-button').find('.submit').click();
+                }
+            });
+        });
+        
+        function checkConditon() {
+            var client_id = $("input[name='oauthClientId']").val();
+            var secret_id = $("input[name='oauthClientSecret']").val();
+            var map_apikey = $("input[name='mapsApiKey']").val();
+            
+            if((client_id != CLIENTID  || secret_id != SECRETKEY || map_apikey != MAPSAPIKEY) || (client_id == '' || secret_id == '' || map_apikey == ''))
+            {
+                displaySaveButton(client_id, secret_id, map_apikey);
+            } else {
+                displayConnectButton();
+            }
+        }
+        function show(){
+            $(".modaltest").show();
+        }
+        function hide(){
+            $(".modaltest").hide()
+        } 
+        function displaySaveButton(client_id, secret_id, map_apikey) {
+            $('.save-btn').removeClass('disabled');
+            $('.save-btn').removeAttr('style', 'display:none');
+            $('.submit-url').attr('style', 'display:none');
+            $('.submit-url').attr('hidden');
+            $('.submit-url').addClass('disabled');
+            $('.submit-url').removeClass('btn');
+            $('.submit-url').removeClass('submit');
+            if(client_id == '' || secret_id == '' || map_apikey == '') 
+            {
+                $('.save-btn').addClass('disabled');
+            }
+        } 
+        function displayConnectButton() {
+            $('.save-btn').addClass('disabled');
+            $('.save-btn').attr('style', 'display:none');
+            $('.submit-url').removeAttr('hidden');
+            $('.submit-url').removeClass('disabled');
+            $('.submit-url').addClass('btn');
+            $('.submit-url').addClass('submit');
+            $('.submit-url').removeAttr('style', 'display:none');
+        }
+    </script>
+{% endblock %}

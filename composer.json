@@ -1,0 +1,50 @@
+{
+    "name": "zealouswebcraftcms/smart-google-analytics",
+    "description": "Smart Google Analytics",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "Smart Google Analytics"
+    ],
+    "support": {
+        "docs": "http://www.zealousweb.com",
+        "issues": "http://www.zealousweb.com"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "zealousweb",
+            "homepage": "http://www.zealousweb.com"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0",
+        "google/apiclient": "2.6"
+    },
+    "require-dev": {
+      "craftcms/cms": "^3.2.0",
+      "codeception/codeception": "^3.0",
+      "vlucas/phpdotenv": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+          "zealouswebcraftcms\\smartgoogleanalytics\\": "src/"
+        },
+        "classmap": [
+            "vendor/google/apiclient/src/Google"
+        ]
+    },
+    "extra": {
+        "name": "Smart Google Analytics",
+        "handle": "smart-google-analytics",
+        "developer": "zealousWeb",
+        "developerUrl": "http://www.zealousweb.com",
+        "documentationUrl": "http://www.zealousweb.com",
+        "changelogUrl": "http://www.zealousweb.com",
+        "class": "zealouswebcraftcms\\smartgoogleanalytics\\SmartGoogleAnalytics"
+    }
+}

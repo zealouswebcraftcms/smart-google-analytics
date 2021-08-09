@@ -1,0 +1,336 @@
+{# Main Index Page #}
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Smart Google Analytics plugin for Craft CMS 3.x
+ *
+ * Smart Google Analytics index.twig
+ *
+ * @author    zealousweb
+ * @copyright Copyright (c) 2021 zealousweb
+ * @link      https://www.zealousweb.com
+ * @package   SmartGoogleAnalytics
+ * @since     1.0.0
+ */ 
+#}
+
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("zealouswebcraftcms\\smartgoogleanalytics\\assetbundles\\smartgoogleanalytics\\SmartGoogleAnalyticsAsset") %}
+{% do view.registerAssetBundle("zealouswebcraftcms\\smartgoogleanalytics\\assetbundles\\indexcpsection\\IndexCPSectionAsset") %}
+
+{# The title of this CP section #}
+{% set title = "Smart Google Analytics" %}
+
+{# The content of the CP Section#}
+{% set content %}
+            
+    {% set account = [] %}
+    {% for item in accounts %}
+        {% set account = account|merge([{ value: item.id, label: item.name}]) %}
+    {% endfor %}
+    
+    {% set property = [] %}
+    {% for item in properties %}
+        {% set property = property|merge([{ value: item.id, label: item.name}]) %}
+    {% endfor %}
+
+    {% set profile = [] %}
+    {% for item in profiles %}
+        {% set profile = profile|merge([{ value: item.id, label: item.name}]) %}
+    {% endfor %}
+
+    <div class="form-standard">
+        <div class="zga_filter_head">
+            <h2 class="first">{{ "Google Analytics View"|t('smart-google-analytics') }}</h2>	
+        </div>
+        <hr>
+        <div id="account-explorer" class="account-explorer-dashboard">
+            {{ forms.selectField({
+                label: "Select Account"|t('smart-google-analytics'),
+                class: 'account',
+                id: 'gaAccountId',
+                name: 'gaAccountId',  
+                options: account,
+            }) }}
+            <input type="hidden" id="gaAccountName" class="gaAccountName" name="gaAccountName" value="">
+
+            {{ forms.selectField({
+                label: "Select Property"|t('smart-google-analytics'),
+                class: 'property',
+                id: 'gaPropertyId',
+                name: 'gaPropertyId',
+                options: property,
+            }) }}
+            <input type="hidden" id="gaPropertyName" class="gaPropertyName" name="gaPropertyName" value="">
+
+            {{ forms.selectField({
+                label: "Select View"|t('smart-google-analytics'),
+                class: 'views',
+                id: 'gaViewId',
+                name: 'gaViewId',
+                options: profile,
+            }) }}
+            
+            <input type="hidden" id="gaViewName" class="gaViewName" name="gaViewName" value="">
+        </div>
+        
+        <div id="account-explorer" class="account-explorer-dashboard">
+            <div id="reportrange">
+                <i data-icon="date" class="date-icon"></i>
+                &nbsp;
+                <span class="date"></span>&nbsp;
+                <input type="hidden" id="zga_start_date" name="zga_start_date" >
+                <input type="hidden" id="zga_end_date" name="zga_end_date" >
+            </div>
+            
+            <div class ="input-search">
+                <input type="text" id="serch_text" name="serch_text" placeholder="Search">
+            </div>
+            <div class ="input-search">
+                <input type="button" id="filterButton" class="filterButton" name="filterButton" value="Filter">
+                <input type="button" id="clearButton" class="ClearButton" name="ClearButton" value="Clear">
+            </div>
+        </div>
+        <hr>
+        <div class ="chart-listing-block"></div>
+    </div>
+    
+    {% block javascript %}
+        	
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>    
+
+        <script>
+            var CLIENTID = ("{{settings.oauthClientId}}") ? '{{settings.oauthClientId}}' : '';
+            var SECRETKEY = ("{{settings.oauthClientSecret}}") ? "{{settings.oauthClientSecret}}" : '';
+            var MAPAPIKEY = ("{{settings.mapsApiKey}}") ? "{{settings.mapsApiKey}}" : '';
+            $(window).on('load', function() {
+                getDateRange();
+                callChartData();
+            });
+            $( document ).ready(function() {
+                accountName();
+                propertyName();
+                viewsName();
+                $('#gaAccountId').on('change', function() {
+                    accountName();
+                    /* Ajax call for fetching Properties */
+                    var urlProperty = "{{ actionUrl('smart-google-analytics/view/properties') }}"; 
+                    var AccountId = $("#gaAccountId").val();
+                    $.ajax ({
+                        type: 'GET',
+                        url: urlProperty,
+                        data: {AccountId: AccountId},
+                        dataType: "JSON",
+                        beforeSend: function(){
+                            // Show loader container
+                            $("#gaPropertyId-field").append('<div class="zeal-field-loader"><label>Loading...</label></div>');
+                            $("#gaViewId-field").append('<div class="zeal-field-loader"><label>Loading...</label></div>');
+                            $("#gaPropertyId-field .select").hide();
+                            $("#gaViewId-field .select").hide();
+                            $("#filterButton").attr('disabled', true);
+                            $("#filterButton").addClass('disabled');
+                            $("#clearButton").attr('disabled', true);
+                            $("#clearButton").addClass('disabled');
+                        },
+                        complete: function (response) {
+                            var make_options = '';
+                            $.each( response.responseJSON.property_array, function( key, value ) {
+                                make_options = make_options + '<option value="'+value.id+'">'+value.name+'</option>';
+                            });
+                            $("#gaPropertyId").html(make_options);
+                            propertyName();
+                            getProfileArray(response);
+                            // hide loader container
+                            $("#gaPropertyId-field  .zeal-field-loader").remove();
+                            $("#gaViewId-field  .zeal-field-loader").remove();
+                            $("#gaPropertyId-field .select").show();
+                            $("#gaViewId-field .select").show();
+                            $("#filterButton").removeAttr('disabled');
+                            $("#filterButton").removeClass('disabled');
+                            $("#clearButton").removeAttr('disabled');
+                            $("#clearButton").removeClass('disabled');
+                        }
+                    });
+                }); 
+
+                /* Ajax call for fetching Profiles */
+                $('#gaPropertyId').on('change', function() {
+                    propertyName();
+                    var urlProfile = "{{ actionUrl('smart-google-analytics/view/profiles') }}"; 
+                    var PropertyId = $("#gaPropertyId").val();
+                    var AccountId = $("#gaAccountId").val();
+                    var flag = 1;
+                    $.ajax ({
+                        type: 'GET',
+                        url: urlProfile,
+                        data: {AccountId: AccountId,PropertyId: PropertyId,flag: flag},
+                        dataType: "JSON",
+                        beforeSend: function(){
+                            // Show loader container
+                            $("#gaViewId-field").append('<div class="zeal-field-loader"><label>Loading...</label></div>');
+                            $("#gaViewId-field .select").hide();
+                            $("#filterButton").attr('disabled', true);
+                            $("#filterButton").addClass('disabled');
+                            $("#clearButton").attr('disabled', true);
+                            $("#clearButton").addClass('disabled');
+                        },
+                        complete: function (response) {
+                            getProfileArray(response);
+                            // hide loader container
+                            $("#gaViewId-field  .zeal-field-loader").remove();
+                            $("#gaViewId-field .select").show();
+                            $("#filterButton").removeAttr('disabled');
+                            $("#filterButton").removeClass('disabled');
+                            $("#clearButton").removeAttr('disabled');
+                            $("#clearButton").removeClass('disabled');
+                        }
+                    }); 
+                });  
+            });
+
+            /* Datepicker */
+            function cb(start, end) {
+                $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                $('#zga_start_date').val(start.format('YYYY-MM-DD'));
+                $('#zga_end_date').val(end.format('YYYY-MM-DD'));
+            }
+            function getDateRange(){
+                var start = moment().subtract(6, 'days');
+                var end = moment();
+                var today = new Date();
+                $('#reportrange').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    maxDate: today,
+                    ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'This Week': [moment().startOf('week'), moment().endOf('week')],
+                    'Last Week': [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'This Year': [moment().startOf('Year'), moment().endOf('Year')],
+                    'Last Year': [moment().subtract(1, 'Year').startOf('Year'), moment().subtract(1, 'Year').endOf('Year')],
+                    }
+                }, cb);
+                cb(start, end);
+            }
+            
+            $("#filterButton").on("click", function() {
+                $('.chart-listing-block').empty();
+                callChartData();
+            });
+            $("#clearButton").on("click", function() {
+                $("#serch_text").val('');
+                getDateRange();
+                callFirstaccount();
+            });
+
+            function accountName() {
+                var accountName = $("#gaAccountId option:selected").text();
+                $("input[name='gaAccountName']").val(accountName);
+            }
+            function propertyName() {
+                var propertyName = $( "#gaPropertyId option:selected" ).text();
+                $("input[name='gaPropertyName']").val(propertyName);
+            }
+            function viewsName() {
+                var viewName = $( "#gaViewId option:selected" ).text();
+                $("input[name='gaViewName']").val(viewName);
+            }
+            function getProfileArray(response) {
+                var make_options = '';
+                $.each( response.responseJSON.profiles_array, function( key, value ){
+                    make_options = make_options + '<option value="'+value.id+'">'+value.name+'</option>';
+                });
+                $("#gaViewId").html(make_options);
+                viewsName();
+            }
+
+            function callChartData() {
+                var search_text = $('#serch_text').val();
+                var account_id = $("#gaAccountId option:selected").val();
+                var property_id = $("#gaPropertyId option:selected").val();
+                var view_id = $("#gaViewId option:selected").val();
+                var start_date =  $("#zga_start_date").val();
+                var end_date =  $("#zga_end_date").val();
+                $('.form-standard').addClass('zeal_loader_enabled');
+                $('.chart-listing-block').html('<span class="zeal-field-loader"><label>Loading...</label></span>');
+                var path = 'get-chart-data';
+                $.ajax({
+                    url:path,
+                    method:"GET",
+                    data:{view_id:view_id, search_text:search_text, start_date:start_date, end_date:end_date},
+                    success:function(response) {
+                        var data = $.parseJSON(response); 
+                        if(data.length <= 0) {
+                            var html = '<div class="no_chart_found">No chart found</div>';
+                            $('.chart-listing-block').html(html);
+                        } else {
+                            $('.chart-listing-block').html('');
+                            charts(response);
+                            setTimeout(function(){
+                                var order_data = getSorted('.chart-list-div', 'data-order')
+                                $('.chart-listing-block').html(order_data);
+                            },1000);
+                        }
+                    }
+                });
+            }
+            
+            /* sorted the chart box according the given order */
+            function getSorted(selector, attrName) {
+                return $($(selector).toArray().sort(function(a, b){
+                    var aVal = parseInt(a.getAttribute(attrName)),
+                        bVal = parseInt(b.getAttribute(attrName));
+                    return aVal - bVal;
+                }));
+            }
+
+            function callFirstaccount(){
+                var AccountId = $("#gaAccountId option:first").val();
+                var route = "{{ actionUrl('smart-google-analytics/view/properties') }}"; 
+                $.ajax({
+                    url : route,
+                    type : 'GET',
+                    data: {AccountId: AccountId},
+                    dataType : "JSON",
+                    beforeSend: function(){
+                        // Show loader container
+                        $("#gaAccountId-field").append('<div class="zeal-field-loader"><label>Loading...</label></div>');
+                        $("#gaPropertyId-field").append('<div class="zeal-field-loader"><label>Loading...</label></div>');
+                        $("#gaViewId-field").append('<div class="zeal-field-loader"><label>Loading...</label></div>');
+                        $("#gaAccountId-field .select").hide();
+                        $("#gaPropertyId-field .select").hide();
+                        $("#gaViewId-field .select").hide();
+                    },
+                    complete : function(response){ 
+                        $("#gaAccountId").prop("selectedIndex", 0);
+                        var make_options = '';
+                        $.each( response.responseJSON.property_array, function( key, value ) {
+                            make_options = make_options + '<option value="'+value.id+'">'+value.name+'</option>';
+                        });
+                        $("#gaPropertyId").html(make_options);
+                        propertyName();
+                        getProfileArray(response);
+                        // hide loader container
+                        $("#gaAccountId-field  .zeal-field-loader").remove();
+                        $("#gaPropertyId-field  .zeal-field-loader").remove();
+                        $("#gaViewId-field  .zeal-field-loader").remove();
+                        $("#gaAccountId-field .select").show();
+                        $("#gaPropertyId-field .select").show();
+                        $("#gaViewId-field .select").show();
+                        callChartData();
+                    }
+                });
+            }   
+        </script>
+    {% endblock %} 
+{% endset %}
+
+

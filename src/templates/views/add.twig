@@ -1,0 +1,378 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Smart Google Analytics plugin for Craft CMS 3.x
+ *
+ * @author    zealousweb
+ * @copyright Copyright (c) 2021 zealousweb
+ * @link      https://www.zealousweb.com
+ * @package   SmartGoogleAnalytics
+ * @since     1.0.0
+ */ 
+#}
+
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+{% set title = "Smart Google Analytics" %}
+{% set crumbs = [
+    { label: "Settings"|t('smart-google-analytics'), url: url('settings/plugins/smart-google-analytics') },
+    { label: "Views"|t('smart-google-analytics'), url: url('settings/plugins/smart-google-analytics#settings-tab-View') }
+] %}
+{% do view.registerAssetBundle("zealouswebcraftcms\\smartgoogleanalytics\\assetbundles\\smartgoogleanalytics\\SmartGoogleAnalyticsAsset") %}
+
+{% set content %}
+
+{% set account = [] %}
+    {% for item in accounts %}
+        {% set account = account|merge([{ value: item.id, label: item.name}]) %}
+    {% endfor %}
+
+{% set property = [] %}
+    {% for item in properties %}
+        {% set property = property|merge([{ value: item.id, label: item.name}]) %}
+    {% endfor %}
+
+{% set profile = [] %}
+    {% for item in profiles %}
+        {% set profile = profile|merge([{ value: item.id, label: item.name}]) %}
+    {% endfor %}
+
+{% set metricsData = [] %}
+    {% set metricsData = metricsData|merge([{ value: '', label: 'Select Metrics'}]) %}
+    {% for key,item in metrics %}
+        {% set metricsData = metricsData|merge([{ optgroup: key}]) %}
+        {% for items in item %}
+            {% set metricsData = metricsData|merge([{ value: items.id, label: items.attributes.uiName}]) %}
+        {% endfor %}
+    {% endfor %}
+
+{% set dimensionsData = [] %}
+    {% set dimensionsData = dimensionsData|merge([{ value: '', label: 'Select Dimension'}]) %}
+    {% for key,item in dimensions %}
+        {% set dimensionsData = dimensionsData|merge([{ optgroup: key}]) %}
+        {% for items in item %}
+            {% set dimensionsData = dimensionsData|merge([{ value: items.id, label: items.attributes.uiName}]) %}
+        {% endfor %}
+    {% endfor %}
+
+    <form method="POST" action="" accept-charset="UTF-8">
+        {{ actionInput('smart-google-analytics/view/save') }}
+        {{ csrfInput() }}
+
+        <div id="account-explorer" class="account-explorer">
+            <h2 class="first">{{ "Google Analytics View"|t('smart-google-analytics') }}</h2>
+            {{ forms.selectField ({
+                label: "Select Account"|t('smart-google-analytics'),
+                class: 'account',
+                id: 'gaAccountId',
+                name: 'gaAccountId',  
+                options: account,
+                value: ((reportingView|length) ? reportingView.gaAccountId : ''),
+            }) }}
+            <input type="hidden" id="gaAccountName" class="gaAccountName" name="gaAccountName">
+
+            {{ forms.selectField({
+                label: "Select Property"|t('smart-google-analytics'),
+                class: 'property',
+                id: 'gaPropertyId',
+                name: 'gaPropertyId',
+                options: property,
+                value:((reportingView|length) ? reportingView.gaPropertyId : ''),
+            }) }}
+            <input type="hidden" id="gaPropertyName" class="gaPropertyName" name="gaPropertyName">
+
+            {{ forms.selectField({
+                label: "Select View"|t('smart-google-analytics'),
+                class: 'views',
+                id: 'gaViewId',
+                name: 'gaViewId',
+                options: profile,
+                value: ((reportingView|length) ? reportingView.gaViewId : ''),
+            }) }}
+            <input type="hidden" id="gaViewName" class="gaViewName" name="gaViewName">
+        </div>
+
+        {{ forms.textField({
+            label: "Chart Name",
+            instructions: 'Enter the Chart Name',
+            id: 'chartName',
+            name: 'chartName',
+            required: 'true',
+            value: ((reportingView|length) ? reportingView.chartName : ''),
+            errors: reportingView.getErrors('chartName'),
+        }) }}
+        
+        {{ forms.selectField({
+            label: "Select Chart Type",
+            id: 'chartType',
+            name: 'chartType',
+            options: {
+                '' : 'Select Chart Type',
+                PIE: 'PIE',
+                BAR: 'BAR',
+                LINE: 'LINE',
+                COLUMN: 'COLUMN',
+                GEO: 'GEO',
+                STAT: 'STAT',
+                LIST: 'LIST',
+            },
+            required: 'true',
+            value: ((reportingView|length) ? reportingView.chartType : ''),
+            errors: reportingView.getErrors('chartType'),
+        }) }}
+
+        {{ forms.textField({
+            label: "Order",
+            instructions: 'Enter the Order',
+            id: 'order',
+            name: 'order',
+            required: 'true',
+            value: ((reportingView|length) ? reportingView.order : ''),
+            errors: reportingView.getErrors('order'),
+        }) }}
+
+        {{ forms.selectField({
+            label: "Select Status",
+            id: 'status',
+            name: 'status',
+            options: {
+                '' : 'Select Status',
+                Active: 'Active',
+                Inactive: 'Inactive',
+            },
+            required: 'true',
+            value: ((reportingView|length) ? reportingView.status : ''),
+            errors: reportingView.getErrors('status'),
+        }) }}
+        
+        {{ forms.selectField({
+            label: "Select Metrics",
+            id: 'metrics',
+            name: 'metricsValue',  
+            options:metricsData,   
+            required: 'true',       
+            value: ((reportingView|length) ? reportingView.metricsValue : ''),
+            errors: reportingView.getErrors('metricsValue'),
+        }) }}
+        <input type="hidden" id="metricsKey" name="metricsKey">
+
+        {{ forms.selectField({
+            label: "Select Dimension",
+            class: "toggledDropDown",
+            id: 'dimensionValue',
+            name: 'dimensionValue', 
+            options: dimensionsData, 
+            required: 'true',           
+            value: ((reportingView|length) ? reportingView.dimensionValue : ''),
+            errors: reportingView.getErrors('dimensionValue'),
+        }) }}
+        <input type="hidden" id="dimensionKey" name="dimensionKey">
+
+        <button class="btn submit" id="save-btn">Save</button>
+        <a class="btn submit" href="{{ url('settings/plugins/smart-google-analytics#settings-tab-View') }}">{{'Cancel'|t('smart-google-analytics') }}</a>
+    </form>
+    {% block javascript %}
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+        {# Daterange script #}
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+        {# Daterange #}
+
+        <script>
+            $( document ).ready(function() {
+                loadstatChart();
+                accountName();
+                propertyName();
+                viewsName();
+                loadpropertyandview();
+                metricsValue();
+                dimensionValue();
+
+                $('#gaAccountId').on('change', function() {
+                    loadpropertyandview();
+                }); 
+
+                /* Ajax call for fetching Profiles */
+                $('#gaPropertyId').on('change', function() {
+                    propertyName();
+                    var urlProfile = "{{ actionUrl('smart-google-analytics/view/profiles') }}"; 
+                    var AccountId = $("#gaAccountId").val();
+                    var PropertyId = $("#gaPropertyId").val();
+                    var flag = 1;
+                    $.ajax ({
+                        type: 'GET',
+                        url: urlProfile,
+                        data: {AccountId: AccountId,PropertyId: PropertyId,flag: flag},
+                        dataType: "JSON",
+                        beforeSend: function(){
+                            // Show loader container
+                            $("#gaViewId-field").append('<div class="zeal-field-loader"><label>Loading...</label></div>');
+                            $("#gaViewId-field .select").hide();
+                            $("#save-btn").attr('disabled', true);
+                            $("#save-btn").addClass('disabled');
+                        },
+                        complete: function (response) {
+                            getProfileArray(response);
+                            // hide loader container
+                            $("#gaViewId-field  .zeal-field-loader").remove();
+                            $("#gaViewId-field .select").show();
+                            $("#save-btn").removeAttr('disabled');
+                            $("#save-btn").removeClass('disabled');
+                        }
+                    }); 
+                });
+
+                $('#metrics').on('change', function() {
+                    metricsValue();
+                });
+                $('#dimensionValue').on('change', function() {
+                    dimensionValue();
+                });
+            });
+
+            function loadpropertyandview(){
+                accountName();
+                /* Ajax call for fetching Properties */
+                var urlProperty = "{{ actionUrl('smart-google-analytics/view/properties') }}"; 
+                var AccountId = $("#gaAccountId").val();
+                $.ajax ({
+                    type: 'GET',
+                    url: urlProperty,
+                    data: {AccountId: AccountId},
+                    dataType: "JSON",
+                    beforeSend: function(){
+                        // Show loader container
+                        $("#gaPropertyId-field").append('<div class="zeal-field-loader"><label>Loading...</label></div>');
+                        $("#gaViewId-field").append('<div class="zeal-field-loader"><label>Loading...</label></div>');
+                        $("#gaPropertyId-field .select").hide();
+                        $("#gaViewId-field .select").hide();
+                        $("#save-btn").attr('disabled', true);
+                        $("#save-btn").addClass('disabled');
+                    },
+                    complete: function (response) {
+                        var make_options = '';
+                        $.each( response.responseJSON.property_array, function( key, value ) {
+                            make_options = make_options + '<option value="'+value.id+'">'+value.name+'</option>';
+                        });
+                        $("#gaPropertyId").html(make_options);
+                        propertyName();
+                        getProfileArray(response);
+                        // hide loader container
+                        $("#gaPropertyId-field  .zeal-field-loader").remove();
+                        $("#gaViewId-field  .zeal-field-loader").remove();
+                        $("#gaPropertyId-field .select").show();
+                        $("#gaViewId-field .select").show();
+                        $("#save-btn").removeAttr('disabled');
+                        $("#save-btn").removeClass('disabled');
+                    }
+                });
+            }
+
+            function accountName() {
+                var accountName = $("#gaAccountId option:selected").text();
+                $("input[name='gaAccountName']").val(accountName);
+            }
+            function propertyName() {
+                var propertyName = $( "#gaPropertyId option:selected" ).text();
+                $("input[name='gaPropertyName']").val(propertyName);
+            }
+            function viewsName() {
+                var viewName = $( "#gaViewId option:selected" ).text();
+                $("input[name='gaViewName']").val(viewName);
+            }
+            function getProfileArray(response) {
+                var make_options = '';
+                $.each( response.responseJSON.profiles_array, function( key, value ){
+                    make_options = make_options + '<option value="'+value.id+'">'+value.name+'</option>';
+                });
+                $("#gaViewId").html(make_options);
+                viewsName();
+            }
+            function dimensionValue() {
+                var dimensionValue = $( "#dimensionValue option:selected" ).text();
+                var dimension_val = (dimensionValue != 'Select Dimension') ? dimensionValue : '-';
+                $("input[name='dimensionKey']").val(dimension_val);
+            }
+            function metricsValue() {
+                var metrics = $( "#metrics option:selected" ).text();
+                var metrics_val = (metrics != 'Select Metrics') ? metrics : '-';
+                $("input[name='metricsKey']").val(metrics_val);
+            }
+            
+            
+            /* For Hide and show dimension dropdown on basis of STAT chart */
+            $("#chartType").change(function(){
+                $(this).find("option:selected").each(function(){
+                    if($(this).val()=="STAT"){
+                        $("#dimensionValue-label").hide();
+                        $("#dimensionValue-field").hide();
+                    } 
+                    else{               
+                        $("#dimensionValue-label").show();
+                        $("#dimensionValue-field").show();
+                    } 
+                    var urlProperty = "{{ actionUrl('smart-google-analytics/view/dimensions') }}"; 
+                    var htmlData = '';
+                    var chartType = $( "#chartType option:selected" ).val();
+                    $.ajax ({
+                        type: 'GET',
+                        url: urlProperty,
+                        data: {'chartType': $(this).attr("value")},
+                        dataType: "JSON",
+                        beforeSend: function(){
+                            // Show loader container
+                            $("#dimensionValue-field").append('<div class="zeal-field-loader"><label>Loading...</label></div>');
+                            $(".toggledDropDown").hide();
+                            $("#save-btn").attr('disabled', true);
+                            $("#save-btn").addClass('disabled');
+                        },
+                        }).done(function(response) {
+
+                            htmlData += ' <select id="dimensionValue" name="dimensionValue" aria-describedby="dimensionValue-instructions"> ';
+                            if(chartType == 'STAT'){
+                                htmlData += ' <option value="-">Select Dimension</option>  ';
+                            }else{
+                                htmlData += ' <option value="">Select Dimension</option>  ';
+                            }
+                            $.each(response.dimensions, function( key, value ){                                
+                                htmlData += '<optgroup label="'+key+'">';
+                                $.each( value, function( i, val ) {  
+                                    htmlData+= '<option value="'+val.id+'">'+val.attributes.uiName+'</option>';                                        
+                                });                         
+                                htmlData +='</optgroup>';
+                            });
+                            htmlData +='</select>';
+                            $('#dimensionValue').html(htmlData); 
+
+                            // Hide loader container   
+                            $("#dimensionValue-field .zeal-field-loader").remove(); 
+                            $(".toggledDropDown").show(); 
+                            $("#save-btn").removeAttr('disabled');
+                            $("#save-btn").removeClass('disabled');                  
+                        }).fail(function(jqXHR, ajaxOptions, thrownError) {
+                            alert('No response from server');
+                    });
+                });
+
+            });
+    
+            function loadstatChart(){
+                $('#chartType').find("option:selected").each(function(){
+                    if($(this).val()=="STAT"){
+                        $("#dimensionValue-label").hide();
+                        $("#dimensionValue-field").hide();
+                    }
+                    else{    
+                        $("#dimensionValue-label").show();
+                        $("#dimensionValue-field").show();
+                    }
+                });
+            }
+            
+        </script>
+    {% endblock %}
+{% endset %} 

@@ -1,0 +1,85 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Smart Google Analytics plugin for Craft CMS 3.x
+ *
+ * @author    zealousweb
+ * @copyright Copyright (c) 2021 zealousweb
+ * @link      https://www.zealousweb.com
+ * @package   SmartGoogleAnalytics
+ * @since     1.0.0
+ */ 
+#}
+
+<div class="buttons"> 	
+    <a href="{{ url('smart-google-analytics/views/add') }}" class="btn submit add icon">{{ 'Add View'|t('smart-google-analytics') }}</a>
+</div>
+<div style="overflow-x:auto;">
+    <table class="data" id ="refresh">
+        {% if data is not empty %}
+            <thead class="table-head">
+                <tr class="data-row">
+                    <th class="sorting" style="text-align:center">{{Chartname|raw}}</th>
+                    <th>{{ "Account → Property → View"|t('smart-google-analytics') }}</th>
+                    <th class="sorting" style="text-align:center">{{Charttype|raw}}</th>
+                    <th class="sorting" style="text-align:center">{{Order|raw}}</th>
+                    <th class="sorting" style="text-align:center">{{Status|raw}}</th>
+                    <th class="sorting" style="text-align:center">{{Metric|raw }}</th>
+                    <th class="sorting" style="text-align:center">{{Dimension|raw }}</th>
+                    <th style="text-align:center">Action</th>
+                </tr>
+            </thead>
+            <tbody class="myTable">
+                {% for item in data %}
+                    <tr class="data-row">
+                        <td data-label="Chart Name" style="text-align:center"><a class= "link" href="{{ url('views/edit/'~ item.id) }}">{{item.chartName}}</a></td>
+                        <td data-label="Account → Property → View">
+                            <div class="Detail">
+                                {{item.account}} →
+                                {{item.property}} →
+                                {{item.views}}
+                            </div>
+                        </td>
+                        <td data-label="Chart Type" style="text-align:center">{{item.chartType}}</td>
+                        <td data-label="Order" style="text-align:center">{{item.order}}</td>
+                        <td data-label="Status" style="text-align:center">{{item.status}}</td>
+                        <td data-label="Metrics" style="text-align:center">{{item.metricsKey}}</td>
+                        {% if item.dimensionValue == '' or item.dimensionKey == '' %}
+                            <td data-label="Dimension" style="text-align:center">-</td>
+                        {% else %}
+                            <td data-label="Dimension" style="text-align:center">{{item.dimensionKey}}</td>
+                        {% endif %}
+                        <td data-label="Action" style="text-align:center"><a class="icon delete" href="{{ url('views/delete/'~ item.id) }}" role="button" title="Delete" onclick="return confirm('Are you sure want to delete?')"></a></td>
+                    </tr>
+                {% endfor %}
+        {% else %}
+            <h3 class="views-exists">No views exist yet.</h3>
+        {% endif %}
+            </tbody>
+    </table>
+</div>
+
+{#---- Pagination---- #}
+<ul class="pagination">
+    <li>{{pager|raw}}</li>
+</ul>
+
+{% block javascript %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script>
+        {#---- Sorting Icon---- #}
+        $(document).ready(function () {
+            setTimeout(function() {
+                $("th.sorting").each(function(){
+                    var th_obj = $(this);
+                    th_obj.removeClass('ordered').removeClass('asc').removeClass('desc');
+                    var a_class = th_obj.find('a').attr("class");
+                    if(a_class != '' && a_class != undefined) {
+                        th_obj.addClass('ordered').addClass(a_class);
+                    }
+                });
+            }, 100);
+        });
+    </script>
+{% endblock %}
