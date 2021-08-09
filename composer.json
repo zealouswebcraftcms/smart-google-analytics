@@ -11,14 +11,14 @@
         "Smart Google Analytics"
     ],
     "support": {
-        "docs": "http://www.zealousweb.com",
-        "issues": "http://www.zealousweb.com"
+        "docs": "https://github.com/zealouswebcraftcms/smart-google-analytics",
+        "issues": "https://github.com/zealouswebcraftcms/smart-google-analytics/issues"
     },
-    "license": "MIT",
+    "license": "proprietary",
     "authors": [
         {
             "name": "zealousweb",
-            "homepage": "http://www.zealousweb.com"
+            "homepage": "https://www.zealousweb.com"
         }
     ],
     "require": {
@@ -42,9 +42,9 @@
         "name": "Smart Google Analytics",
         "handle": "smart-google-analytics",
         "developer": "zealousWeb",
-        "developerUrl": "http://www.zealousweb.com",
-        "documentationUrl": "http://www.zealousweb.com",
-        "changelogUrl": "http://www.zealousweb.com",
+        "developerUrl": "https://www.zealousweb.com",
+        "documentationUrl": "https://github.com/zealouswebcraftcms/smart-google-analytics",
+        "changelogUrl": "https://www.zealousweb.com",
         "class": "zealouswebcraftcms\\smartgoogleanalytics\\SmartGoogleAnalytics"
     }
 }
