@@ -11,7 +11,7 @@
         "Smart Google Analytics"
     ],
     "support": {
-        "docs": "https://github.com/zealouswebcraftcms/smart-google-analytics",
+        "docs": "https://github.com/zealouswebcraftcms/smart-google-analytics/blob/master/README.md",
         "issues": "https://github.com/zealouswebcraftcms/smart-google-analytics/issues"
     },
     "license": "proprietary",
@@ -43,8 +43,8 @@
         "handle": "smart-google-analytics",
         "developer": "zealousWeb",
         "developerUrl": "https://www.zealousweb.com",
-        "documentationUrl": "https://github.com/zealouswebcraftcms/smart-google-analytics",
-        "changelogUrl": "https://www.zealousweb.com",
+        "documentationUrl": "https://github.com/zealouswebcraftcms/smart-google-analytics/blob/master/README.md",
+        "changelogUrl": "https://github.com/zealouswebcraftcms/smart-google-analytics/blob/master/CHANGELOG.md",
         "class": "zealouswebcraftcms\\smartgoogleanalytics\\SmartGoogleAnalytics"
     }
 }
