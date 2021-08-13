@@ -35,7 +35,7 @@
           "zealouswebcraftcms\\smartgoogleanalytics\\": "src/"
         },
         "classmap": [
-            "../vendor/google/apiclient/src/Google"
+            "../../../vendor/google/apiclient/src/Google"
         ]
     },
     "extra": {
