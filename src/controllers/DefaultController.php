@@ -9,7 +9,7 @@
  */
 
 namespace zealouswebcraftcms\smartgoogleanalytics\controllers;
-
+require realpath(dirname(__DIR__)) . "/vendor/autoload.php";
 use Craft;
 use zealouswebcraftcms\smartgoogleanalytics\SmartGoogleAnalytics;
 use zealouswebcraftcms\smartgoogleanalytics\records\CraftRecords;
@@ -70,15 +70,15 @@ class DefaultController extends Controller
 	/* To Connect with Google Analytics Account */
 	public function actionConnect(){	
 		$settings = $this->actionSettingsData();
-		$client = new \Google_Client();
+		$client = new Google_Client();
         $client->setClientId($settings->oauthClientId);
         $client->setClientSecret($settings->oauthClientSecret);
         $client->setRedirectUri(UrlHelper::actionUrl('smart-google-analytics/default/callback'));
-		$client->addScope(\Google_Service_Analytics::ANALYTICS_READONLY);
+		$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);
 		$client->setAccessType('offline'); 
 		if(Craft::$app->getSession()->get("access_token") != '') {
 			$client->setAccessToken(Craft::$app->getSession()->get("access_token"));
-			$analytics = new \Google_Service_Analytics($client);
+			$analytics = new Google_Service_Analytics($client);
 			return Craft::$app->view->renderTemplate('smart-google-analytics/connect', [
 				'setting_url' => UrlHelper::cpUrl('settings/plugins/smart-google-analytics'),
 			]);
@@ -93,11 +93,11 @@ class DefaultController extends Controller
 	/* Return back from Google Console Account */
     public function actionCallback($code){			
         $settings = $this->actionSettingsData();
-		$client = new \Google_Client();
+		$client = new Google_Client();
 		$client->setClientId($settings->oauthClientId);
         $client->setClientSecret($settings->oauthClientSecret);
 		$client->setRedirectUri(UrlHelper::actionUrl('smart-google-analytics/default/callback'));
-		$client->addScope(\Google_Service_Analytics::ANALYTICS_READONLY);
+		$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);
 		$client->setApprovalPrompt('auto');
 		$client->setAccessType('offline'); 
 		$token = Craft::$app->getSession()->get("google_user_access_token");
@@ -112,7 +112,7 @@ class DefaultController extends Controller
 		} else {
 			$client->setAccessToken($token);
 		}
-		$analytics = new \Google_Service_Analytics($client);
+		$analytics = new Google_Service_Analytics($client);
 		$user_name = $this->actionGetUserName();
 		Craft::$app->getSession()->set('user_name', $user_name);
 		return Craft::$app->view->renderTemplate('smart-google-analytics/connect', [
@@ -150,14 +150,14 @@ class DefaultController extends Controller
         // Get and pre-validate the settings
         $settings = $this->actionSettingsData();
 
-        $client = new \Google_Client();
+        $client = new Google_Client();
         $client->setClientId($settings->oauthClientId);
         $client->setClientSecret($settings->oauthClientSecret);
         $client->setRedirectUri(UrlHelper::actionUrl('smart-google-analytics/default/callback'));
-		$client->addScope(\Google_Service_Analytics::ANALYTICS_READONLY);
+		$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);
         if (Craft::$app->getSession()->get("google_user_access_token") != '') {
 			$client->setAccessToken(Craft::$app->getSession()->get("google_user_access_token"));
-			$analytics = new \Google_Service_Analytics($client);
+			$analytics = new Google_Service_Analytics($client);
 			$accounts = $analytics->management_accounts->listManagementAccounts();
         } else {
             $auth_url = $client->createAuthUrl();
@@ -267,7 +267,7 @@ class DefaultController extends Controller
 					}else{
 						echo "Notfound";
 					}
-				} catch (\Google_Service_Exception $e) {
+				} catch (Google_Service_Exception $e) {
 					$array[$key]['error'] = $e->getErrors()[0]['message'] ;
 				}
 
@@ -299,7 +299,7 @@ class DefaultController extends Controller
 					}else{
 						echo "Notfound";
 					}
-				} catch (\Google_Service_Exception $e) {
+				} catch (Google_Service_Exception $e) {
 					$array[$key]['error'] = $e->getErrors()[0]['message'] ;
 				}
 
@@ -331,7 +331,7 @@ class DefaultController extends Controller
 					}else{
 						echo "Notfound";
 					}
-				} catch (\Google_Service_Exception $e) {
+				} catch (Google_Service_Exception $e) {
 					$array[$key]['error'] = $e->getErrors()[0]['message'] ;
 				}
 				
@@ -363,7 +363,7 @@ class DefaultController extends Controller
 					}else{
 						echo "Notfound";
 					}
-				} catch (\Google_Service_Exception $e) {
+				} catch (Google_Service_Exception $e) {
 					$array[$key]['error'] = $e->getErrors()[0]['message'] ;
 				}
 				
@@ -395,7 +395,7 @@ class DefaultController extends Controller
 					}else{
 						echo "Notfound";
 					}
-				} catch (\Google_Service_Exception $e) {
+				} catch (Google_Service_Exception $e) {
 					$array[$key]['error'] = $e->getErrors()[0]['message'];
 				}
 
@@ -414,7 +414,7 @@ class DefaultController extends Controller
 						$end_date,
 						$value['metricsValue'],
 					);
-				} catch (\Google_Service_Exception $e) {
+				} catch (Google_Service_Exception $e) {
 					$array[$key]['error'] = $e->getErrors()[0]['message'] ;
 				}
 
@@ -446,7 +446,7 @@ class DefaultController extends Controller
 					}else{
 						echo "Notfound";
 					}
-				} catch (\Google_Service_Exception $e) {
+				} catch (Google_Service_Exception $e) {
 					$array[$key]['error'] = $e->getErrors()[0]['message'] ;
 				}
 			}	
@@ -460,11 +460,11 @@ class DefaultController extends Controller
 	
 		$plugin = SmartGoogleAnalytics::getInstance();
 		$settings = $plugin->getSettings();
-		$client = new \Google_Client();
+		$client = new Google_Client();
 		$client->setClientId($settings->oauthClientId);
 		$client->setClientSecret($settings->oauthClientSecret);
 		$client->setRedirectUri(UrlHelper::actionUrl('smart-google-analytics/default/callback'));
-		$client->addScope(\Google_Service_Analytics::ANALYTICS_READONLY);	
+		$client->addScope(Google_Service_Analytics::ANALYTICS_READONLY);	
 			
 		$token = Craft::$app->getSession()->get("google_user_access_token");
 		if($token != '') { 		
@@ -483,7 +483,7 @@ class DefaultController extends Controller
 			return;
 		}
 		
-		$analytics = new \Google_Service_Analytics($client);
+		$analytics = new Google_Service_Analytics($client);
 		return $analytics;
 	}
 }
