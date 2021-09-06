@@ -30,14 +30,6 @@
       "codeception/codeception": "^3.0",
       "vlucas/phpdotenv": "^3.0"
     },
-    "autoload": {
-        "psr-4": {
-          "zealouswebcraftcms\\smartgoogleanalytics\\": "src/"
-        },
-        "classmap": [
-            "PEAR/"
-        ]
-    },
     "extra": {
         "name": "Smart Google Analytics",
         "handle": "smart-google-analytics",
