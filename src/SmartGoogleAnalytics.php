@@ -10,9 +10,9 @@
 
 namespace zealouswebcraftcms\smartgoogleanalytics;
 // require realpath(dirname(__DIR__)) . "/vendor/autoload.php";
-use zealouswebcraftcms\smartgoogleanalytics\models\Settings;
-use zealouswebcraftcms\smartgoogleanalytics\models\Views;
-use zealouswebcraftcms\smartgoogleanalytics\records\CraftRecords;
+// use zealouswebcraftcms\smartgoogleanalytics\models\Settings;
+// use zealouswebcraftcms\smartgoogleanalytics\models\Views;
+// use zealouswebcraftcms\smartgoogleanalytics\records\CraftRecords;
 
 use Craft;
 use craft\base\Plugin;
@@ -100,7 +100,7 @@ class SmartGoogleAnalytics extends Plugin
      */
     public function init()
     {
-        require_once realpath("../"). "/vendor/autoload.php";
+        //require_once realpath("../"). "/vendor/autoload.php";
         Event::on(
             UrlManager::class,
             UrlManager::EVENT_REGISTER_CP_URL_RULES,
