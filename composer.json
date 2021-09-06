@@ -35,8 +35,6 @@
           "zealouswebcraftcms\\smartgoogleanalytics\\": "src/"
         }
     },
-    "minimum-stability": "dev", 
-    "prefer-stable": true,
     "extra": {
         "name": "Smart Google Analytics",
         "handle": "smart-google-analytics",
