@@ -29,6 +29,7 @@ use craft\events\TemplateEvent;
 use craft\helpers\UrlHelper;
 use craft\events\RegisterUrlRulesEvent;
 use craft\events\RegisterComponentTypesEvent;
+use \Google_Client, \Google_Service_Analytics, \Google_Service_Exception;
 
 /**
  * Craft plugins are very much like little applications in and of themselves. We’ve made
