@@ -23,7 +23,7 @@ use yii\helpers\Json;
 use craft\controllers\PluginsController;
 use craft\helpers\Html;
 use zealouswebcraftcms\smartgoogleanalytics\controllers\ViewController;
-use Google_Client, Google_Service_Analytics, Google_Service_Exception;
+use \Google_Client, \Google_Service_Analytics, \Google_Service_Exception;
 
 /**
  * Default Controller
