@@ -33,7 +33,10 @@
     "autoload": {
         "psr-4": {
           "zealouswebcraftcms\\smartgoogleanalytics\\": "src/"
-        }
+        },
+        "classmap": [
+            "PEAR/"
+        ]
     },
     "extra": {
         "name": "Smart Google Analytics",
