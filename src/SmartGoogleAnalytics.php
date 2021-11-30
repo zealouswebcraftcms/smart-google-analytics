@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2021 zealousweb
  */
 
+
 namespace zealouswebcraftcms\smartgoogleanalytics;
 use zealouswebcraftcms\smartgoogleanalytics\models\Settings;
 use zealouswebcraftcms\smartgoogleanalytics\models\Views;
