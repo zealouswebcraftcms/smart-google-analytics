@@ -10,9 +10,9 @@
 
 namespace zealouswebcraftcms\smartgoogleanalytics;
 // require realpath(dirname(__DIR__)) . "/vendor/autoload.php";
-// use zealouswebcraftcms\smartgoogleanalytics\models\Settings;
-// use zealouswebcraftcms\smartgoogleanalytics\models\Views;
-// use zealouswebcraftcms\smartgoogleanalytics\records\CraftRecords;
+use zealouswebcraftcms\smartgoogleanalytics\models\Settings;
+use zealouswebcraftcms\smartgoogleanalytics\models\Views;
+use zealouswebcraftcms\smartgoogleanalytics\records\CraftRecords;
 
 use Craft;
 use craft\base\Plugin;
