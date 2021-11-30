@@ -32,8 +32,8 @@ modules:
       migrations: []
       plugins:
         craft-analytics:
-          class: '\zealousweb\craftanalytics\CraftAnalytics'
-          handle: craft-analytics
+          class: '\zealouswebcraftcms\smartgoogleanalytics\SmartGoogleAnalytics'
+          handle: smart-google-analytics
       cleanup: true
       transaction: true
       dbSetup: {clean: true, setupCraft: true}
