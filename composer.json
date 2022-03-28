@@ -23,7 +23,7 @@
     ],
     "require": {
         "craftcms/cms": "^3.0.0",
-        "google/apiclient": "2.6"
+        "google/apiclient": "^v2.6.0"
     },
     "require-dev": {
       "craftcms/cms": "^3.2.0",

@@ -54,7 +54,7 @@ class Install extends Migration
     {
         $this->driver = Craft::$app->getConfig()->getDb()->driver;
         if ($this->createTables()) {
-            $this->addForeignKeys();
+            // $this->addForeignKeys();
             // Refresh the db schema caches
             Craft::$app->db->schema->refresh();
             $this->insertDefaultData();
